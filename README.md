@@ -120,4 +120,112 @@ innodb_io_capacity=5000
 innodb_io_capacity_max=10000
 innodb_buffer_pool_instances=9
 ```
+Volveremos comentario (#) algunas líneas que ya existen en el archivo actual:
+```
+#character-set-server = utf8mb4
+#collation-server = utf8mb4_general_ci
+```
 
+## 6. Instalación de SNMP y otras herramientas para CACTI
+```
+sudo apt install snmp snmpd rrdtool
+```
+## 7. Configuración de CACTI
+
+### 7.1 Instalación de git para clonar el repositorio de CACTI
+
+```
+sudo apt install git
+```
+Copiamos el repositorio
+```
+git clone -b 1.2.x https://github.com/Cacti/cacti.git
+```
+
+Debemos mover el repositorio al directorio WEB:
+```
+sudo mv cacti /var/www/html
+```
+Utilizaremos la configuración de CACTI SQL para completar la base de datos creada previamente.
+```
+sudo mysql -u root cacti < /var/www/html/cacti/cacti.sql
+
+```
+### 7.2 Creación de la configuración de PHP para CACTI:
+```
+cd /var/www/html/cacti/include
+```
+```
+cp config.php.dist config.php
+```
+Editamos el archivo de configuración
+```
+sudo nano config.php
+```
+En este punto debemos de cambiar los siguientes datos
+1. Database name
+2. Username
+3. Password
+
+Guardamos y cerramos el archivo.
+
+### 7.3 Agregamos permisos al usuario de Apache para acceder al directorio de CACTI.
+```
+sudo chown -R www-data:www-data /var/www/html/cacti
+ ```
+
+8. Creación del servicio de CACTI SYSTEMD
+Para ejecutar el servicio  de Cacti en segundo plano, se creara un servicio del sistema de CACTI utilizando los siguientes comandos.
+```
+sudo nano /etc/systemd/system/cactid.service
+```
+Agregar las siguientes líneas al archivo:
+```
+[Unit]
+Description=Cacti Daemon Main Poller Service
+After=network.target
+
+[Service]
+Type=forking
+User=www-data
+Group=www-data
+EnvironmentFile=/etc/default/cactid
+ExecStart=/var/www/html/cacti/cactid.php
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Guardamos y cerramos el archivo.
+Creamos el siguiente archivo
+```
+sudo touch /etc/default/cactid
+```
+
+Iniciar y activar el servicio de CACTI:
+```
+sudo systemctl daemon-reload
+```
+```
+sudo systemctl enable cactid
+```
+```
+sudo systemctl restart cactid
+```
+Validamos el estado actual del servicio:
+```
+sudo systemctl status cactid
+```
+Cacti monitoring service Ubuntu 22.04 or 20.04
+
+Reiniciamos el servicio MARIADB
+```
+sudo systemctl restart apache2 mariadb
+```
+
+## 9. Acceso a CACTI
+```
+http://your-server-IP-address/cacti/
+```
