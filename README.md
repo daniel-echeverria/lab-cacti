@@ -1,14 +1,14 @@
 # lab-cacti
-Laboratorio para SAR2023 Lab Cacti
+Laboratorio para el Seminario de Aplicación de Redes 2023
 
 ## 1. Update your Ubuntu 22.04 or 20.04 Server
 ```
-sudo apt update && sudo apt upgrade
+sudo apt update && sudo apt upgrade -y
 ```
 
 ## 2. Instalar Apache para Cacti
 ```
-sudo apt install apache2
+sudo apt install apache2 -y
 ```
 Iniciar y activar el Apache Web server:
 ```
@@ -20,10 +20,10 @@ Para almacenar datos utilizamos MySQL/MariaDB, mientras que la interfaz de usuar
 
 ### 3.1 Instalando PHP:
 ```
-sudo apt install php php-{mysql,curl,net-socket,gd,intl,pear,imap,memcache,pspell,tidy,xmlrpc,snmp,mbstring,gmp,json,xml,common,ldap}
+sudo apt install php php-{mysql,curl,net-socket,gd,intl,pear,imap,memcache,pspell,tidy,xmlrpc,snmp,mbstring,gmp,json,xml,common,ldap} -y
 ```
 ```
-sudo apt install libapache2-mod-php
+sudo apt install libapache2-mod-php -y
 ```
 
 ### 3.2 Configuración de la memoria y tiempo de ejecución:
@@ -35,19 +35,19 @@ Cambiamos el límite de ```memory_limit``` de 128 a 512.
 ```
 memory_limit = 512M
 ```
-Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```memory_limit```.
+> Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```memory_limit```.
 
 Cambiamos el tiempo de ejecución de ```max_execution_time``` de  30 a 300.
 ```
 max_execution_time = 300
 ```
-Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```max_execution_time```.
+> Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```max_execution_time```.
 
-### 3.3 Ajustamos el valor de ```date.timezone```
+### 3.3 Ajustamos el valor de ```date.timezone```, eliminar el ";" del inicio de la línea.
 ```
 date.timezone = America/Guatemala
 ```
-
+> [Si no estan seguros pueden buscar su zona horaria](https://www.php.net/manual/en/timezones.php)
 Guardamos y salimos del archivo.
 
 ### 3.3.1 Realizaremos el mismo ajuste en el archivo de PHP CLI ```php.ini```.
@@ -55,7 +55,7 @@ Guardamos y salimos del archivo.
 ```
 sudo nano /etc/php/*/cli/php.ini
 ```
-Buscamos nuevamente ```date.timezone```
+Buscamos nuevamente ```date.timezone```, eliminar el ";" del inicio de la línea.
 ```
 date.timezone = America/Guatemala
 ```
@@ -76,16 +76,19 @@ sudo systemctl status mariadb
 
 ### 4.1 Creación de la base de datos MariaDB Database para Cacti
 ```
-sudo mysql -u root -p
+mysql -u root -p
 ```
 ```
 CREATE DATABASE cacti DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ;
 ```
 ```
-GRANT ALL PRIVILEGES ON cacti.* TO 'cacti_user'@'localhost' IDENTIFIED BY 'strongpassword';
+CREATE USER 'cactiuser'@'localhost' IDENTIFIED BY 'cactiuser';
 ```
 ```
-GRANT SELECT ON mysql.time_zone_name TO cacti_user@localhost;
+GRANT ALL ON cacti.* TO 'cactiuser'@'localhost';
+```
+```
+GRANT SELECT ON mysql.time_zone_name TO 'cactiuser'@'localhost';
 ```
 ```
 ALTER DATABASE cacti CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -93,9 +96,7 @@ ALTER DATABASE cacti CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 FLUSH PRIVILEGES;
 ```
-```
-EXIT;
-```
+
 ## 5. Configuración de MariaDb para Cacti
 Editamos el siguiente archivo
 ```
@@ -128,7 +129,7 @@ Volveremos comentario (#) algunas líneas que ya existen en el archivo actual:
 
 ## 6. Instalación de SNMP y otras herramientas para CACTI
 ```
-sudo apt install snmp snmpd rrdtool
+sudo apt install snmp snmpd rrdtool -y
 ```
 ## 7. Configuración de CACTI
 
@@ -229,3 +230,15 @@ sudo systemctl restart apache2 mariadb
 ```
 http://your-server-IP-address/cacti/
 ```
+
+Se solicitara un usuario el cual sera el creado previamente:
+1. admin
+2. admin
+
+## 10. Inicialización de CACTI 
+
+10.1 Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas caracteristicas. (Test1234!)
+
+10.2 Se solicitara aceptar la licencia de CACTI, asi como podemos seleccionar el tema y el idioma.
+
+10.3 
