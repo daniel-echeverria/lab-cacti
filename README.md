@@ -76,7 +76,7 @@ sudo systemctl status mariadb
 
 ### 4.1 Creación de la base de datos MariaDB Database para Cacti
 ```
-mysql -u root -p
+sudo mysql -u root -p
 ```
 ```
 CREATE DATABASE cacti DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ;
