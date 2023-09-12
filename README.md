@@ -241,12 +241,34 @@ http://your-server-IP-address/cacti/
 Se solicitara un usuario/contraseña:
 1. admin
 2. admin
-
+![](https://github.com/daniel-echeverria/lab-cacti/blob/main/paso1.png)
 Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas caracteristicas. (ej. Sar2023!)
+![](https://github.com/daniel-echeverria/lab-cacti/blob/main/paso2.png)
 
 ## 9. Asistente de instalación web de CACTI
-
 9.1 Se solicitara aceptar la licencia, asi como podemos seleccionar el tema y el idioma.
 
-9.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI.
+9.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI. (Todos deben de estar en verde para poder continuar).
 
+9.3 Se debe de seleccionar el tipode instalación, deberemos de seleccionar "New Primary Server".
+
+9.3 Verficación de los permisos de los directorios  (Todos deben de estar en verde para poder continuar).
+
+9.4 Validación de ubicaciones binarias y sus versiones  (Todos deben de estar en verde para poder continuar).
+
+9.5 Aceptación de los terminos de protección.
+
+9.6 Validación del perfil de ejecución.
+
+9.7 Selección de templates para agregar dispositivos para monitorear.
+
+9.8 Revisamos las configuraciones de la base de datos.
+
+9.9 Instalación.
+
+9.10 Resumen de los elementos instados.
+
+9.11 Inicio de CACTI
+
+9.12 Gráficas del servidor
+![](https://github.com/daniel-echeverria/lab-cacti/blob/main/graficas.png)
