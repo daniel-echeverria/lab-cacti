@@ -1,109 +1,94 @@
 # lab-cacti
 Laboratorio para el Seminario de Aplicación de Redes 2023
 
-## 1. Update your Ubuntu 22.04 or 20.04 Server
+## 1. Actualizar el servidor Ubuntu 22.04
 ```
 sudo apt update && sudo apt upgrade -y
 ```
 
-## 2. Instalar Apache para Cacti
+## 2. Instalamos las dependencias necesarias 
 ```
-sudo apt install apache2 -y
+sudo apt-get install snmp php-snmp rrdtool librrds-perl unzip curl git gnupg2 php-intl -y
 ```
 Iniciar y activar el Apache Web server:
 ```
 sudo systemctl enable --now apache2
 ```
 
-## 3. Instalción de PHP
-Para almacenar datos utilizamos MySQL/MariaDB, mientras que la interfaz de usuario web de Cacti está basada en PHP, por lo que necesitamos instalar este lenguaje de programación instalado en nuestro sistema junto con algunas extensiones requeridas por Cacti para funcionar correctamente
+## 3. Instalción del Servidor LAMP (Linux, Apache, MariaDB, PHP y otras exensiones)
+Para almacenar datos utilizamos MySQL/MariaDB, mientras que la interfaz de usuario web de Cacti está basada en PHP, por lo que necesitamos instalar este lenguaje de programación a nuestro sistema junto con algunas extensiones requeridas por Cacti para funcionar correctamente, asi como Apache para lograr acceder a nuestro servicio.
 
-### 3.1 Instalando PHP:
 ```
-sudo apt install php php-{mysql,curl,net-socket,gd,intl,pear,imap,memcache,pspell,tidy,xmlrpc,snmp,mbstring,gmp,json,xml,common,ldap} -y
-```
-```
-sudo apt install libapache2-mod-php -y
+sudo apt-get install apache2 mariadb-server php php-mysql libapache2-mod-php php-xml php-ldap php-mbstring php-gd php-gmp -y
 ```
 
-### 3.2 Configuración de la memoria y tiempo de ejecución:
-Editar el archivo php.ini:
+## 4. Modificación de las configuraciones por defecto
 ```
-sudo nano /etc/php/*/apache2/php.ini
+sudo nano /etc/php/8.1/apache2/php.ini
 ```
-Cambiamos el límite de ```memory_limit``` de 128 a 512.
+### Ajustamos el valor de ```date.timezone```, eliminar el ";" del inicio de la línea.
+```
+date.timezone = America/Guatemala
+```
+> [Si no estan seguros pueden buscar su zona horaria](https://www.php.net/manual/en/timezones.php)
+
+### Configuración de la memoria y tiempo de ejecución:
+Cambiamos el tiempo de ejecución de ```max_execution_time``` de  30 a 60.
+```
+max_execution_time = 60
+```
+> Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```max_execution_time```.
+
+Cambiamos el límite de ```memory_limit``` de -1 a 512.
 ```
 memory_limit = 512M
 ```
 > Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```memory_limit```.
 
-Cambiamos el tiempo de ejecución de ```max_execution_time``` de  30 a 300.
-```
-max_execution_time = 300
-```
-> Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```max_execution_time```.
-
-### 3.3 Ajustamos el valor de ```date.timezone```, eliminar el ";" del inicio de la línea.
-```
-date.timezone = America/Guatemala
-```
-> [Si no estan seguros pueden buscar su zona horaria](https://www.php.net/manual/en/timezones.php)
 Guardamos y salimos del archivo.
 
-### 3.3.1 Realizaremos el mismo ajuste en el archivo de PHP CLI ```php.ini```.
+### 4.1 Realizaremos el mismo ajuste en el archivo de PHP CLI ```php.ini```.
 
 ```
-sudo nano /etc/php/*/cli/php.ini
-```
-Buscamos nuevamente ```date.timezone```, eliminar el ";" del inicio de la línea.
-```
+memory_limit = 512M
+max_execution_time = 60
 date.timezone = America/Guatemala
 ```
- 
-## 4.Install MariaDB
-Instalamos MariaDB como base de datos para Cacti.
-```
-sudo apt install mariadb-server -y
-```
-Iniciamos y activamos el servidor de base de datos"
-```
-sudo systemctl enable --now mariadb
-```
-Validamos el estado actual del servcio:
-```
-sudo systemctl status mariadb
-```
 
-### 4.1 Creación de la base de datos MariaDB Database para Cacti
+## Creación de la base de datos para Cacti
+Editaremos el archivo de configuración predeterminado de MariaDB por lo cual se debe de modificar algunas configuraciones predeterminadas:
 ```
-sudo mysql -u root -p
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
+Líneas a modificar o agregar, esto debe de ser en el apartado [mysqld]
 ```
-CREATE DATABASE cacti DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ;
+collation-server = utf8mb4_unicode_ci
+max_heap_table_size = 512M
+tmp_table_size = 64M
+join_buffer_size = 4M
+sort_buffer_size = 4M
+innodb_file_format = Barracuda
+innodb_large_prefix = 1
+innodb_buffer_pool_size = 1000M
+innodb_flush_log_at_timeout = 3
+innodb_read_io_threads = 32
+innodb_write_io_threads = 16
+innodb_io_capacity = 5000
+innodb_io_capacity_max = 10000
+innodb_doublewrite = OFF
 ```
+Adicionalmente debemos comentar la siguiente línea, esto debido al cambio de confidicación que solicita CACTI:
 ```
-CREATE USER 'cactiuser'@'localhost' IDENTIFIED BY 'cactiuser';
+#collation-server      = utf8mb4_general_ci
 ```
-```
-GRANT ALL ON cacti.* TO 'cactiuser'@'localhost';
-```
-```
-GRANT SELECT ON mysql.time_zone_name TO 'cactiuser'@'localhost';
-```
-```
-ALTER DATABASE cacti CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-```
-FLUSH PRIVILEGES;
-```
+Guardamos y salimos del archivo.
 
 ## 5. Configuración de MariaDb para Cacti
 Editamos el siguiente archivo
 ```
 sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
 ```
-
-Copiamos y pegamos las siguientes configuraciones debajo de la línea **[mariadb]**
+Copiamos y pegamos las siguientes configuraciones debajo de la línea [mysqld]
 ```
 innodb_file_format=Barracuda
 innodb_large_prefix=1
@@ -126,102 +111,149 @@ Volveremos comentario (#) algunas líneas que ya existen en el archivo actual:
 #character-set-server = utf8mb4
 #collation-server = utf8mb4_general_ci
 ```
+### 5.1 Creación de la base de datos
+Iniciamos el shell de MariaDB
 
-## 6. Instalación de SNMP y otras herramientas para CACTI
 ```
-sudo apt install snmp snmpd rrdtool -y
+mysql
 ```
+> Notar que ahora estaremos en: MariaDB [(none)]>
+Creamos la base de datos y el usuario para CACTI con el siguiente comando:
+```
+create database cactidb;
+```
+```
+GRANT ALL ON cactidb.* TO cactiuser@localhost IDENTIFIED BY 'password';
+```
+> En este paso podemos cambiar el usuario y la contraseña del usuario que usara Cacti para conectarse a la base de datos.
+```
+flush privileges;
+```
+```
+exit;
+```
+### 5.2 Importación de la información de la zona horaria a la base de datos
+```
+mysql mysql < /usr/share/mysql/mysql_test_data_timezone.sql
+```
+### 5.3 Asignamos los privilegios a la zona horaria
+```
+GRANT SELECT ON mysql.time_zone_name TO cactiuser@localhost;
+```
+```
+flush privileges;
+```
+```
+exit;
+```
+
 ## 7. Configuración de CACTI
+### 7.1 Obtención de los recursos
+Descargamos la última versión de CACTI 
+```
+wget https://www.cacti.net/downloads/cacti-latest.tar.gz
+```
+Extraemos el archivo descargado
+```
+tar -zxvf cacti-latest.tar.gz
+```
+Movemos el directorio descomprimido al directorio raiz de Apache:
+```
+sudo mv cacti-1* /var/www/html/cacti
+```
 
-### 7.1 Instalación de git para clonar el repositorio de CACTI
-
-```
-sudo apt install git
-```
-Copiamos el repositorio
-```
-git clone -b 1.2.x https://github.com/Cacti/cacti.git
-```
-
-Debemos mover el repositorio al directorio WEB:
-```
-sudo mv cacti /var/www/html
-```
 Utilizaremos la configuración de CACTI SQL para completar la base de datos creada previamente.
 ```
-sudo mysql -u root cacti < /var/www/html/cacti/cacti.sql
+mysql cactidb < /var/www/html/cacti/cacti.sql
+```
+
+### 7.2 Ajustes de Cacti
+Editamos el archivo de Cacti config.php y para definir la configuración la base de datos
+```
+nano /var/www/html/cacti/include/config.php
 
 ```
-### 7.2 Creación de la configuración de PHP para CACTI:
 ```
-cd /var/www/html/cacti/include
+$database_type     = 'mysql';
+$database_default  = 'cactidb';
+$database_hostname = 'localhost';
+$database_username = 'cactiuser';
+$database_password = 'password';
+$database_port     = '3306';
 ```
-```
-cp config.php.dist config.php
-```
-Editamos el archivo de configuración
-```
-sudo nano config.php
-```
-En este punto debemos de cambiar los siguientes datos
-1. Database name
-2. Username
-3. Password
+> En este punto si se realizó algun cambio en el usuario o contraseña se debe de realizar la modificación.
 
-Guardamos y cerramos el archivo.
+Guardamos y salimos del archivo.
 
-### 7.3 Agregamos permisos al usuario de Apache para acceder al directorio de CACTI.
+Creamos el siguente archivo para poder almacenar logs
 ```
-sudo chown -R www-data:www-data /var/www/html/cacti
- ```
+sudo touch /var/www/html/cacti/log/cacti.log
+```
 
-8. Creación del servicio de CACTI SYSTEMD
-Para ejecutar el servicio  de Cacti en segundo plano, se creara un servicio del sistema de CACTI utilizando los siguientes comandos.
+### 7.3 Modificamos el dueño y los permisos del directorio Cacti
 ```
-sudo nano /etc/systemd/system/cactid.service
+chown -R www-data:www-data /var/www/html/cacti/
 ```
+```
+chmod -R 775 /var/www/html/cacti/
+```
+
+### 7.4 Creación del Cron para la ejecución de CACTI
+```
+sudo nano /etc/cron.d/cacti
+
+```
+Agregamos la configuración para que se ejecute cada 5 minutos
+```
+*/5 * * * * www-data php /var/www/html/cacti/poller.php > /dev/null 2>&1
+```
+Guardamos y salimos del archivo.
+
+## 8. Creaciónde del virtual host para CACTI
+Creamos el archivo:
+```
+nano /etc/apache2/sites-available/cacti.conf
+```
+
 Agregar las siguientes líneas al archivo:
 ```
-[Unit]
-Description=Cacti Daemon Main Poller Service
-After=network.target
+Alias /cacti /var/www/html/cacti
 
-[Service]
-Type=forking
-User=www-data
-Group=www-data
-EnvironmentFile=/etc/default/cactid
-ExecStart=/var/www/html/cacti/cactid.php
-Restart=always
-RestartSec=5s
+  <Directory /var/www/html/cacti>
+      Options +FollowSymLinks
+      AllowOverride None
+      <IfVersion >= 2.3>
+      Require all granted
+      </IfVersion>
+      <IfVersion < 2.3>
+      Order Allow,Deny
+      Allow from all
+      </IfVersion>
 
-[Install]
-WantedBy=multi-user.target
+   AddType application/x-httpd-php .php
+
+<IfModule mod_php.c>
+      php_flag magic_quotes_gpc Off
+      php_flag short_open_tag On
+      php_flag register_globals Off
+      php_flag register_argc_argv On
+      php_flag track_vars On
+      # this setting is necessary for some locales
+      php_value mbstring.func_overload 0
+      php_value include_path .
+ </IfModule>
+
+  DirectoryIndex index.php
+</Directory>
 ```
-
 Guardamos y cerramos el archivo.
-Creamos el siguiente archivo
+
+Habilitamos el sitio
 ```
-sudo touch /etc/default/cactid
+a2ensite cacti
 ```
 
-Iniciar y activar el servicio de CACTI:
-```
-sudo systemctl daemon-reload
-```
-```
-sudo systemctl enable cactid
-```
-```
-sudo systemctl restart cactid
-```
-Validamos el estado actual del servicio:
-```
-sudo systemctl status cactid
-```
-Cacti monitoring service Ubuntu 22.04 or 20.04
-
-Reiniciamos el servicio MARIADB
+Reiniciamos los servicios  modificados
 ```
 sudo systemctl restart apache2 mariadb
 ```
@@ -230,15 +262,16 @@ sudo systemctl restart apache2 mariadb
 ```
 http://your-server-IP-address/cacti/
 ```
-
-Se solicitara un usuario el cual sera el creado previamente:
+Se solicitara un usuario/contraseña:
 1. admin
 2. admin
 
-## 10. Inicialización de CACTI 
+Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas caracteristicas. (ej. Sar2023!)
 
-10.1 Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas caracteristicas. (Test1234!)
+## 10. Asistente de instalación web de CACTI
 
-10.2 Se solicitara aceptar la licencia de CACTI, asi como podemos seleccionar el tema y el idioma.
+10.1 Se solicitara aceptar la licencia, asi como podemos seleccionar el tema y el idioma.
 
-10.3 
+10.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI.
+> Errorres comunes
+> 1. 
