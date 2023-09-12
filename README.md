@@ -55,7 +55,7 @@ max_execution_time = 60
 date.timezone = America/Guatemala
 ```
 
-## Creación de la base de datos para Cacti
+## 5. Creación de la base de datos para Cacti
 Editaremos el archivo de configuración predeterminado de MariaDB por lo cual se debe de modificar algunas configuraciones predeterminadas:
 ```
 sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
@@ -82,38 +82,13 @@ Adicionalmente debemos comentar la siguiente línea, esto debido al cambio de co
 #collation-server      = utf8mb4_general_ci
 ```
 Guardamos y salimos del archivo.
+Reiniciamos los MariaDB
+```
+sudo systemctl restart mariadb
+```
 
-## 5. Configuración de MariaDb para Cacti
-Editamos el siguiente archivo
-```
-sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
-```
-Copiamos y pegamos las siguientes configuraciones debajo de la línea [mysqld]
-```
-innodb_file_format=Barracuda
-innodb_large_prefix=1
-collation-server=utf8mb4_unicode_ci
-character-set-server=utf8mb4
-innodb_doublewrite=OFF
-max_heap_table_size=128M
-tmp_table_size=128M
-join_buffer_size=128M
-innodb_buffer_pool_size=1G
-innodb_flush_log_at_timeout=3
-innodb_read_io_threads=32
-innodb_write_io_threads=16
-innodb_io_capacity=5000
-innodb_io_capacity_max=10000
-innodb_buffer_pool_instances=9
-```
-Volveremos comentario (#) algunas líneas que ya existen en el archivo actual:
-```
-#character-set-server = utf8mb4
-#collation-server = utf8mb4_general_ci
-```
 ### 5.1 Creación de la base de datos
 Iniciamos el shell de MariaDB
-
 ```
 mysql
 ```
