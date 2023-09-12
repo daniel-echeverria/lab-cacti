@@ -30,7 +30,7 @@ sudo nano /etc/php/8.1/apache2/php.ini
 ```
 date.timezone = America/Guatemala
 ```
-> [Si no estan seguros pueden buscar su zona horaria](https://www.php.net/manual/en/timezones.php)
+> [Zonaa horariaa](https://www.php.net/manual/en/timezones.php)
 
 ### Configuración de la memoria y tiempo de ejecución:
 Cambiamos el tiempo de ejecución de ```max_execution_time``` de  30 a 60.
@@ -118,6 +118,7 @@ Iniciamos el shell de MariaDB
 mysql
 ```
 > Notar que ahora estaremos en: MariaDB [(none)]>
+
 Creamos la base de datos y el usuario para CACTI con el siguiente comando:
 ```
 create database cactidb;
@@ -147,8 +148,8 @@ flush privileges;
 exit;
 ```
 
-## 7. Configuración de CACTI
-### 7.1 Obtención de los recursos
+## 6. Configuración de CACTI
+### 6.1 Obtención de los recursos
 Descargamos la última versión de CACTI 
 ```
 wget https://www.cacti.net/downloads/cacti-latest.tar.gz
@@ -167,11 +168,10 @@ Utilizaremos la configuración de CACTI SQL para completar la base de datos crea
 mysql cactidb < /var/www/html/cacti/cacti.sql
 ```
 
-### 7.2 Ajustes de Cacti
+### 6.2 Ajustes de Cacti
 Editamos el archivo de Cacti config.php y para definir la configuración la base de datos
 ```
 nano /var/www/html/cacti/include/config.php
-
 ```
 ```
 $database_type     = 'mysql';
@@ -190,7 +190,7 @@ Creamos el siguente archivo para poder almacenar logs
 sudo touch /var/www/html/cacti/log/cacti.log
 ```
 
-### 7.3 Modificamos el dueño y los permisos del directorio Cacti
+### 6.3 Modificamos el dueño y los permisos del directorio Cacti
 ```
 chown -R www-data:www-data /var/www/html/cacti/
 ```
@@ -198,10 +198,9 @@ chown -R www-data:www-data /var/www/html/cacti/
 chmod -R 775 /var/www/html/cacti/
 ```
 
-### 7.4 Creación del Cron para la ejecución de CACTI
+### 6.4 Creación del Cron para la ejecución de CACTI
 ```
 sudo nano /etc/cron.d/cacti
-
 ```
 Agregamos la configuración para que se ejecute cada 5 minutos
 ```
@@ -209,7 +208,7 @@ Agregamos la configuración para que se ejecute cada 5 minutos
 ```
 Guardamos y salimos del archivo.
 
-## 8. Creaciónde del virtual host para CACTI
+## 7. Creaciónde del virtual host para CACTI
 Creamos el archivo:
 ```
 nano /etc/apache2/sites-available/cacti.conf
@@ -258,7 +257,7 @@ Reiniciamos los servicios  modificados
 sudo systemctl restart apache2 mariadb
 ```
 
-## 9. Acceso a CACTI
+## 8. Acceso a CACTI
 ```
 http://your-server-IP-address/cacti/
 ```
@@ -268,10 +267,10 @@ Se solicitara un usuario/contraseña:
 
 Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas caracteristicas. (ej. Sar2023!)
 
-## 10. Asistente de instalación web de CACTI
+## 9. Asistente de instalación web de CACTI
 
-10.1 Se solicitara aceptar la licencia, asi como podemos seleccionar el tema y el idioma.
+9.1 Se solicitara aceptar la licencia, asi como podemos seleccionar el tema y el idioma.
 
-10.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI.
+9.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI.
 > Errorres comunes
 > 1. 
