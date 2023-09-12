@@ -26,7 +26,7 @@ sudo apt-get install apache2 mariadb-server php php-mysql libapache2-mod-php php
 ```
 sudo nano /etc/php/8.1/apache2/php.ini
 ```
-### Ajustamos el valor de ```date.timezone```, eliminar el ";" del inicio de la línea.
+Ajustamos el valor de ```date.timezone```, eliminar el ";" del inicio de la línea.
 ```
 date.timezone = America/Guatemala
 ```
