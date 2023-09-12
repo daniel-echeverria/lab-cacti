@@ -8,11 +8,7 @@ sudo apt update && sudo apt upgrade -y
 
 ## 2. Instalamos las dependencias necesarias 
 ```
-sudo apt-get install snmp php-snmp rrdtool librrds-perl unzip curl git gnupg2 php-intl -y
-```
-Iniciar y activar el Apache Web server:
-```
-sudo systemctl enable --now apache2
+sudo apt-get install snmp php-snmp rrdtool librrds-perl unzip curl git gnupg2 php-intl
 ```
 
 ## 3. Instalción del Servidor LAMP (Linux, Apache, MariaDB, PHP y otras exensiones)
@@ -39,7 +35,7 @@ max_execution_time = 60
 ```
 > Para hacer más fácil la busqueda se puede utilizar el comando Ctrl+W + ```max_execution_time```.
 
-Cambiamos el límite de ```memory_limit``` de -1 a 512.
+Cambiamos el límite de ```memory_limit``` 512.
 ```
 memory_limit = 512M
 ```
@@ -48,7 +44,9 @@ memory_limit = 512M
 Guardamos y salimos del archivo.
 
 ### 4.1 Realizaremos el mismo ajuste en el archivo de PHP CLI ```php.ini```.
-
+```
+sudo nano /etc/php/8.1/cli/php.ini
+```
 ```
 memory_limit = 512M
 max_execution_time = 60
@@ -90,7 +88,7 @@ sudo systemctl restart mariadb
 ### 5.1 Creación de la base de datos
 Iniciamos el shell de MariaDB
 ```
-mysql
+sudo mysql
 ```
 > Notar que ahora estaremos en: MariaDB [(none)]>
 
@@ -110,9 +108,13 @@ exit;
 ```
 ### 5.2 Importación de la información de la zona horaria a la base de datos
 ```
-mysql mysql < /usr/share/mysql/mysql_test_data_timezone.sql
+sudo mysql mysql < /usr/share/mysql/mysql_test_data_timezone.sql
 ```
 ### 5.3 Asignamos los privilegios a la zona horaria
+```
+sudo mysql
+```
+> Notar que ahora estaremos en: MariaDB [(none)]>
 ```
 GRANT SELECT ON mysql.time_zone_name TO cactiuser@localhost;
 ```
@@ -140,13 +142,13 @@ sudo mv cacti-1* /var/www/html/cacti
 
 Utilizaremos la configuración de CACTI SQL para completar la base de datos creada previamente.
 ```
-mysql cactidb < /var/www/html/cacti/cacti.sql
+sudo mysql cactidb < /var/www/html/cacti/cacti.sql
 ```
 
 ### 6.2 Ajustes de Cacti
 Editamos el archivo de Cacti config.php y para definir la configuración la base de datos
 ```
-nano /var/www/html/cacti/include/config.php
+sudo nano /var/www/html/cacti/include/config.php
 ```
 ```
 $database_type     = 'mysql';
@@ -167,10 +169,10 @@ sudo touch /var/www/html/cacti/log/cacti.log
 
 ### 6.3 Modificamos el dueño y los permisos del directorio Cacti
 ```
-chown -R www-data:www-data /var/www/html/cacti/
+sudo chown -R www-data:www-data /var/www/html/cacti/
 ```
 ```
-chmod -R 775 /var/www/html/cacti/
+sudo chmod -R 775 /var/www/html/cacti/
 ```
 
 ### 6.4 Creación del Cron para la ejecución de CACTI
@@ -186,7 +188,7 @@ Guardamos y salimos del archivo.
 ## 7. Creaciónde del virtual host para CACTI
 Creamos el archivo:
 ```
-nano /etc/apache2/sites-available/cacti.conf
+sudo nano /etc/apache2/sites-available/cacti.conf
 ```
 
 Agregar las siguientes líneas al archivo:
@@ -224,7 +226,7 @@ Guardamos y cerramos el archivo.
 
 Habilitamos el sitio
 ```
-a2ensite cacti
+sudo a2ensite cacti
 ```
 
 Reiniciamos los servicios  modificados
@@ -247,5 +249,4 @@ Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas 
 9.1 Se solicitara aceptar la licencia, asi como podemos seleccionar el tema y el idioma.
 
 9.2 Se mostrará un resumen de todos los prerequisitos que solicita CACTI.
-> Errorres comunes
-> 1. 
+
