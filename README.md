@@ -272,3 +272,33 @@ Se solicitará el cambio de contraseña, aqui se solicitara que poseean algunas 
 
 9.12 Gráficas del servidor
 ![](https://github.com/daniel-echeverria/lab-cacti/blob/main/graficas.png)
+
+
+10. Configuración Host
+
+10.1 Instalación de SMPD
+```
+sudo apt-get install snmpd snmp
+```
+10.2 Configuración
+```
+sudo nano /etc/snmp/snmpd.conf
+```
+Campos a editar o agregar
+Opcionales, agregamos información de contacto
+```
+sysLocation    sar2023
+sysContact     Me <me@sar2023.com>
+```
+```
+agenaddress udp:161
+
+view all included .1 80
+
+rommunity public
+sudo ufw allow 161/udp
+sudo service snmpd restart
+
+view    AllView         included        .1
+```
+> El nombre de la comunidad será "public".
