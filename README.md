@@ -3,7 +3,8 @@ Laboratorio para el Seminario de Aplicación de Redes 2023
 
 ## 1. Actualizar el servidor Ubuntu 22.04
 ```
-sudo apt update && sudo apt upgrade -y
+sudo apt update
+sudo apt upgrade -y
 ```
 
 ## 2. Instalamos las dependencias necesarias 
